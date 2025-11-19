@@ -8,12 +8,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout do código
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Instalar dependências do sistema
       run: |
@@ -36,17 +37,50 @@ jobs:
         pip install --upgrade pip setuptools wheel
         pip install buildozer cython
 
-    - name: Inicializar Buildozer se não existir
+    - name: Copiar Keystore (se existir)
+      if: secrets.KEYSTORE_BASE64 != ''
       run: |
-        if [ ! -f buildozer.spec ]; then buildozer init; fi
+        echo "$KEYSTORE_BASE64" | base64 -d > mykeystore.jks
 
-    - name: Build APK
+    - name: Ajustar buildozer.spec para Release
+      run: |
+        sed -i "s/# android.release_keystore =.*/android.release_keystore = mykeystore.jks/" buildozer.spec
+        sed -i "s/# android.release_keystore_password =.*/android.release_keystore_password = ${{ secrets.KEYSTORE_PASSWORD }}/" buildozer.spec
+        sed -i "s/# android.release_keyalias =.*/android.release_keyalias = ${{ secrets.KEY_ALIAS }}/" buildozer.spec
+        sed -i "s/# android.release_keyalias_password =.*/android.release_keyalias_password = ${{ secrets.KEY_PASSWORD }}/" buildozer.spec
+
+    - name: Build APK DEBUG
       run: |
         buildozer android debug
 
-    - name: Upload do APK
-      uses: actions/upload-artifact@v3
+    - name: Build APK RELEASE
+      if: secrets.KEYSTORE_BASE64 != ''
+      run: |
+        buildozer android release
+
+    - name: Upload APKs como Artifact
+      uses: actions/upload-artifact@v4
       
       with:
-        name: app-kivy-apk
-        path: bin/*.apk
+        name: app-kivy-builds
+        path: |
+          bin/*.apk
+          bin/*.aab
+          
+  publish-release:
+    needs: build-apk
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      
+      with:
+        name: app-kivy-builds
+        path: ./dist
+
+    - name: Criar Release
+      uses: softprops/action-gh-release@v2
+      
+      with:
+        files: dist/*
