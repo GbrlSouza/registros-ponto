@@ -4,7 +4,7 @@
 
 ---
 
-# 📱 Como transformar isso em um APP ANDROID (.apk)
+### 📱 Como transformar isso em um APP ANDROID (.apk)
 
 1. Instale o Buildozer (no Linux ou WSL)
 
