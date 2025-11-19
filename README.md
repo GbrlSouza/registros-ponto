@@ -1,5 +1,15 @@
 # registros-ponto
 
+```
+/app
+ ├── main.py
+ ├── database.py
+ ├── ponto.kv
+ ├── icon.png
+ ├── buildozer.spec
+ └── .env
+```
+
 ## ✅ **Usar Kivy (App nativo para Android/iOS)**
 
 ---
