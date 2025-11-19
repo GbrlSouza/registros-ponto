@@ -1,0 +1,43 @@
+<MDRaisedButton@MDRectangleFlatButton>
+
+ScreenManager:
+    MenuScreen:
+    RegistrosScreen:
+
+<MenuScreen>:
+    name: "menu"
+
+    MDBoxLayout:
+        orientation: "vertical"
+        padding: 40
+        spacing: 30
+
+        MDLabel:
+            text: "App de Ponto"
+            halign: "center"
+            font_style: "H4"
+
+        MDRaisedButton:
+            text: "Registrar Entrada"
+            on_release: app.registrar_entrada()
+
+        MDRaisedButton:
+            text: "Registrar Saída"
+            on_release: app.registrar_saida()
+
+        MDRaisedButton:
+            text: "Ver Registros"
+            on_release: app.ir_para_registros()
+
+<RegistrosScreen>:
+    name: "registros"
+
+    BoxLayout:
+        orientation: "vertical"
+        MDToolbar:
+            title: "Registros"
+            left_action_items: [["arrow-left", lambda x: app.voltar_menu()]]
+
+        ScrollView:
+            MDList:
+                id: lista_registros
